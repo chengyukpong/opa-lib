@@ -1,3 +1,6 @@
+# Dependencies
+node_modules/
+
 # Binaries and bundles
 *.exe
 *.tar.gz
