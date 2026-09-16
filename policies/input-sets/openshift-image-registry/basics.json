@@ -1,0 +1,28 @@
+{
+  "id": "basics",
+  "name": "基本允許 / 拒絕",
+  "description": "內部 registry 應通過；公共 Docker Hub 應拒絕。",
+  "cases": {
+    "internal-ok": {
+      "name": "內部 registry",
+      "description": "registry.internal.acme 前綴",
+      "input": { "image": "registry.internal.acme/orders:1.0.0", "namespace": "prod" },
+      "expected": true
+    },
+    "docker-hub-deny": {
+      "name": "Docker Hub",
+      "description": "外部公共鏡像",
+      "input": { "image": "docker.io/library/nginx:1.25", "namespace": "prod" },
+      "expected": false
+    },
+    "openshift-svc": {
+      "name": "OpenShift 內建 registry",
+      "description": "svc DNS 形式",
+      "input": {
+        "image": "image-registry.openshift-image-registry.svc:5000/app/tool:latest",
+        "namespace": "app"
+      },
+      "expected": true
+    }
+  }
+}

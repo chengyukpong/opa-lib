@@ -1,0 +1,7 @@
+{
+  "id": "cicd-coverage",
+  "title": "CI：測試覆蓋率門檻",
+  "description": "依 repo 類型套用覆蓋率門檻；可設定暫時豁免（需票號與到期日）。",
+  "tags": ["ci", "quality", "github-actions"],
+  "query": "data.ci.pass"
+}

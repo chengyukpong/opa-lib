@@ -1,0 +1,25 @@
+{
+  "id": "waivers",
+  "name": "暫時豁免",
+  "description": "有效 waiver 可過；過期 waiver 應拒絕。",
+  "cases": {
+    "legacy-waiver": {
+      "name": "legacy-portal 有效票",
+      "input": {
+        "repo": "acme/legacy-portal",
+        "language": "typescript",
+        "coverage_pct": 40
+      },
+      "expected": true
+    },
+    "expired-waiver": {
+      "name": "spike-ml 過期票",
+      "input": {
+        "repo": "acme/spike-ml",
+        "language": "python",
+        "coverage_pct": 10
+      },
+      "expected": false
+    }
+  }
+}

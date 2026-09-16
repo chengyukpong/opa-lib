@@ -1,0 +1,21 @@
+{
+  "thresholds": {
+    "typescript": 80,
+    "java": 75,
+    "python": 70
+  },
+  "waivers": [
+    {
+      "repo": "acme/legacy-portal",
+      "ticket": "QA-991",
+      "expires": "2027-06-30T23:59:59Z",
+      "note": "Refactor in progress"
+    },
+    {
+      "repo": "acme/spike-ml",
+      "ticket": "QA-1200",
+      "expires": "2025-01-01T00:00:00Z",
+      "note": "Expired waiver"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "role_actions": {
+    "admin": ["read", "create", "update", "delete"],
+    "editor": ["read", "create", "update"],
+    "viewer": ["read"],
+    "billing.viewer": ["read"]
+  }
+}

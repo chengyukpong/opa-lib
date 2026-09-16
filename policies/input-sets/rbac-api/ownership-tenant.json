@@ -1,0 +1,34 @@
+{
+  "id": "ownership-tenant",
+  "name": "所有者與租戶",
+  "description": "Owner 可管理自己的資源；跨租戶應拒絕。",
+  "cases": {
+    "owner-update": {
+      "name": "Owner 更新自己的資源",
+      "input": {
+        "subject": { "user_id": "u-1", "roles": ["viewer"], "tenant": "acme" },
+        "action": "update",
+        "resource": { "tenant": "acme", "owner_id": "u-1", "type": "invoice" }
+      },
+      "expected": true
+    },
+    "cross-tenant": {
+      "name": "跨租戶讀",
+      "input": {
+        "subject": { "user_id": "u-1", "roles": ["editor"], "tenant": "acme" },
+        "action": "read",
+        "resource": { "tenant": "other", "owner_id": "u-1", "type": "invoice" }
+      },
+      "expected": false
+    },
+    "billing-read": {
+      "name": "Billing viewer 讀",
+      "input": {
+        "subject": { "user_id": "u-b", "roles": ["billing.viewer"], "tenant": "acme" },
+        "action": "read",
+        "resource": { "tenant": "acme", "owner_id": "u-x", "type": "invoice" }
+      },
+      "expected": true
+    }
+  }
+}

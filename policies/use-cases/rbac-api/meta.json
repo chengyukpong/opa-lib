@@ -1,0 +1,7 @@
+{
+  "id": "rbac-api",
+  "title": "微服務 API RBAC",
+  "description": "依角色與資源所有者決定是否允許讀寫；管理員可讀寫全部。",
+  "tags": ["rbac", "api", "microservice"],
+  "query": "data.authz.allow"
+}

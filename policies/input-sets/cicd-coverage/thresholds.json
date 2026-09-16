@@ -1,0 +1,22 @@
+{
+  "id": "thresholds",
+  "name": "覆蓋率門檻",
+  "description": "不同語言門檻；通過與未通過。",
+  "cases": {
+    "ts-pass": {
+      "name": "TypeScript 85%",
+      "input": { "repo": "acme/web", "language": "typescript", "coverage_pct": 85 },
+      "expected": true
+    },
+    "ts-fail": {
+      "name": "TypeScript 62%",
+      "input": { "repo": "acme/web", "language": "typescript", "coverage_pct": 62 },
+      "expected": false
+    },
+    "java-pass": {
+      "name": "Java 76%",
+      "input": { "repo": "acme/api", "language": "java", "coverage_pct": 76 },
+      "expected": true
+    }
+  }
+}

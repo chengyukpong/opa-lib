@@ -1,0 +1,12 @@
+# Binaries and bundles
+*.exe
+*.tar.gz
+bundle*.tar.gz
+
+# IDE / Editor files
+.idea/
+.vscode/
+
+# OS files
+Thumbs.db
+.DS_Store

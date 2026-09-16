@@ -1,0 +1,20 @@
+{
+  "allowed_prefixes": [
+    "registry.internal.acme/",
+    "image-registry.openshift-image-registry.svc:5000/"
+  ],
+  "exceptions": [
+    {
+      "prefix": "quay.io/acme-legacy/",
+      "ticket": "CHG-1024",
+      "expires": "2027-12-31T23:59:59Z",
+      "note": "Legacy migration window"
+    },
+    {
+      "prefix": "docker.io/library/nginx",
+      "ticket": null,
+      "expires": "2026-12-31T23:59:59Z",
+      "note": "Missing ticket — should deny"
+    }
+  ]
+}
