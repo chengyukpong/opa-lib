@@ -51,7 +51,36 @@ for (const uc of useCases) {
   const displayCmd = `${path.basename(opaBin)} ${args.join(' ')}`;
   console.log(`$ ${displayCmd}\n`);
 
-  const result = spawnSync(opaBin, args, { stdio: 'inherit', cwd: baseDir });
+  let result;
+  if (hasCoverage) {
+    result = spawnSync(opaBin, args, { stdio: ['inherit', 'pipe', 'inherit'], cwd: baseDir, encoding: 'utf-8' });
+    if (result.stdout) {
+      try {
+        const parsed = JSON.parse(result.stdout);
+        const cleanFiles = {};
+        if (parsed.files) {
+          for (const [filePath, fileData] of Object.entries(parsed.files)) {
+            cleanFiles[filePath] = {
+              covered_lines: fileData.covered_lines ?? 0,
+              not_covered_lines: fileData.not_covered_lines ?? 0,
+              coverage: fileData.coverage ?? 0,
+            };
+          }
+        }
+        const cleanReport = {
+          files: cleanFiles,
+          covered_lines: parsed.covered_lines ?? 0,
+          not_covered_lines: parsed.not_covered_lines ?? 0,
+          coverage: parsed.coverage ?? 0,
+        };
+        console.log(JSON.stringify(cleanReport, null, 2));
+      } catch {
+        console.log(result.stdout);
+      }
+    }
+  } else {
+    result = spawnSync(opaBin, args, { stdio: 'inherit', cwd: baseDir });
+  }
 
   if (result.status === 0) {
     totalPassed++;
