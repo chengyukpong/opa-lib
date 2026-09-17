@@ -43,8 +43,8 @@ export class UseCaseInstance {
   readonly baseDir: string;
   readonly opaPath: string;
   readonly meta: UseCaseMeta;
-  readonly policyPath: string;
-  readonly dataPath: string;
+  readonly dataPaths: string[] = [];
+  readonly policyPaths: string[] = [];
   readonly inputSets: InputSet[] = [];
   readonly cases: Map<string, TestCase> = new Map();
 
@@ -55,17 +55,46 @@ export class UseCaseInstance {
       ? path.join(this.baseDir, 'opa.exe')
       : path.join(this.baseDir, 'opa'));
 
-    const useCaseDir = path.join(this.baseDir, 'policies', 'use-cases', id);
+    let useCaseDir = path.join(this.baseDir, 'use-cases', id);
+    if (!fs.existsSync(useCaseDir)) {
+      useCaseDir = path.join(this.baseDir, 'policies', 'use-cases', id);
+    }
+
     const metaPath = path.join(useCaseDir, 'meta.json');
     if (!fs.existsSync(metaPath)) {
       throw new Error(`Use case metadata not found at ${metaPath}`);
     }
 
     this.meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
-    this.policyPath = path.join(useCaseDir, 'policy.rego');
-    this.dataPath = path.join(useCaseDir, 'data.json');
 
-    const inputSetsDir = path.join(this.baseDir, 'policies', 'input-sets', id);
+    // Support multiple rego files / policies directory
+    const policiesDir = path.join(useCaseDir, 'policies');
+    if (fs.existsSync(policiesDir) && fs.statSync(policiesDir).isDirectory()) {
+      this.policyPaths.push(policiesDir);
+    } else {
+      const singlePolicy = path.join(useCaseDir, 'policy.rego');
+      if (fs.existsSync(singlePolicy)) {
+        this.policyPaths.push(singlePolicy);
+      }
+    }
+
+    // Support multiple data files / data directory
+    const dataDir = path.join(useCaseDir, 'data');
+    if (fs.existsSync(dataDir) && fs.statSync(dataDir).isDirectory()) {
+      this.dataPaths.push(dataDir);
+    } else {
+      const singleData = path.join(useCaseDir, 'data.json');
+      if (fs.existsSync(singleData)) {
+        this.dataPaths.push(singleData);
+      }
+    }
+
+    // Support input-sets from root or policies directory
+    let inputSetsDir = path.join(this.baseDir, 'input-sets', id);
+    if (!fs.existsSync(inputSetsDir)) {
+      inputSetsDir = path.join(this.baseDir, 'policies', 'input-sets', id);
+    }
+
     if (fs.existsSync(inputSetsDir)) {
       const files = fs.readdirSync(inputSetsDir).filter(f => f.endsWith('.json'));
       for (const file of files) {
@@ -81,18 +110,26 @@ export class UseCaseInstance {
     }
   }
 
+  get policyPath(): string {
+    return this.policyPaths[0] || '';
+  }
+
+  get dataPath(): string {
+    return this.dataPaths[0] || '';
+  }
+
   async eval(input: Record<string, any>, query?: string): Promise<any> {
     const targetQuery = query || this.meta.query;
-    const relPolicy = path.relative(this.baseDir, this.policyPath).replace(/\\/g, '/');
-    const relData = path.relative(this.baseDir, this.dataPath).replace(/\\/g, '/');
-    const args = [
-      'eval',
-      '-d', relPolicy,
-      '-d', relData,
-      '--stdin-input',
-      '-f', 'json',
-      targetQuery,
-    ];
+    const args = ['eval'];
+
+    for (const p of this.policyPaths) {
+      args.push('-d', path.relative(this.baseDir, p).replace(/\\/g, '/'));
+    }
+    for (const d of this.dataPaths) {
+      args.push('-d', path.relative(this.baseDir, d).replace(/\\/g, '/'));
+    }
+
+    args.push('--stdin-input', '-f', 'json', targetQuery);
 
     return new Promise((resolve, reject) => {
       const child = spawn(this.opaPath, args, {
