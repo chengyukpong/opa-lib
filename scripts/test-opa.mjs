@@ -39,20 +39,8 @@ for (const uc of useCases) {
     args.push('-v');
   }
 
-  if (fs.existsSync(policiesDir)) {
-    args.push(path.relative(baseDir, policiesDir).replace(/\\/g, '/'));
-  }
-  if (fs.existsSync(testDir)) {
-    args.push(path.relative(baseDir, testDir).replace(/\\/g, '/'));
-  } else if (fs.existsSync(testsDir)) {
-    args.push(path.relative(baseDir, testsDir).replace(/\\/g, '/'));
-  }
-  if (fs.existsSync(dataDir)) {
-    const dataFiles = fs.readdirSync(dataDir).filter(f => f.endsWith('.json') || f.endsWith('.yaml'));
-    for (const df of dataFiles) {
-      args.push(path.relative(baseDir, path.join(dataDir, df)).replace(/\\/g, '/'));
-    }
-  }
+  const relUcDir = path.relative(baseDir, ucDir).replace(/\\/g, '/');
+  args.push(relUcDir);
 
   console.log(`\n=== Use Case: ${uc} ===`);
   const displayCmd = `${path.basename(opaBin)} ${args.join(' ')}`;

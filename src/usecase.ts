@@ -78,14 +78,14 @@ export class UseCaseInstance {
       }
     }
 
-    // Support multiple data files / data directory
-    const dataDir = path.join(useCaseDir, 'data');
-    if (fs.existsSync(dataDir) && fs.statSync(dataDir).isDirectory()) {
-      this.dataPaths.push(dataDir);
+    // Support data.json at root or data directory
+    const singleData = path.join(useCaseDir, 'data.json');
+    if (fs.existsSync(singleData)) {
+      this.dataPaths.push(singleData);
     } else {
-      const singleData = path.join(useCaseDir, 'data.json');
-      if (fs.existsSync(singleData)) {
-        this.dataPaths.push(singleData);
+      const dataDir = path.join(useCaseDir, 'data');
+      if (fs.existsSync(dataDir) && fs.statSync(dataDir).isDirectory()) {
+        this.dataPaths.push(dataDir);
       }
     }
 
