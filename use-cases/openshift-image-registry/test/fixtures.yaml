@@ -1,0 +1,33 @@
+basics_cases:
+  internal_ok:
+    input:
+      image: registry.internal.acme/orders:1.0.0
+      namespace: prod
+    expected: true
+  docker_hub_deny:
+    input:
+      image: docker.io/library/nginx:1.25
+      namespace: prod
+    expected: false
+  openshift_svc:
+    input:
+      image: image-registry.openshift-image-registry.svc:5000/app/tool:latest
+      namespace: app
+    expected: true
+
+exceptions_cases:
+  legacy_ok:
+    input:
+      image: quay.io/acme-legacy/old-app:1.0
+      namespace: legacy
+    expected: true
+  nginx_no_ticket:
+    input:
+      image: docker.io/library/nginx:1.25
+      namespace: prod
+    expected: false
+  random_external:
+    input:
+      image: ghcr.io/someone/random:latest
+      namespace: prod
+    expected: false

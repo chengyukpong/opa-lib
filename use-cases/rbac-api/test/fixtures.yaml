@@ -1,0 +1,75 @@
+matrix_cases:
+  admin_delete:
+    input:
+      subject:
+        user_id: u-admin
+        roles: ["admin"]
+        tenant: acme
+      action: delete
+      resource:
+        tenant: acme
+        owner_id: u-other
+        type: invoice
+    expected: true
+  viewer_update:
+    input:
+      subject:
+        user_id: u-view
+        roles: ["viewer"]
+        tenant: acme
+      action: update
+      resource:
+        tenant: acme
+        owner_id: u-other
+        type: invoice
+    expected: false
+  editor_update:
+    input:
+      subject:
+        user_id: u-ed
+        roles: ["editor"]
+        tenant: acme
+      action: update
+      resource:
+        tenant: acme
+        owner_id: u-other
+        type: doc
+    expected: true
+
+ownership_tenant_cases:
+  owner_update:
+    input:
+      subject:
+        user_id: u-1
+        roles: ["viewer"]
+        tenant: acme
+      action: update
+      resource:
+        tenant: acme
+        owner_id: u-1
+        type: invoice
+    expected: true
+  cross_tenant:
+    input:
+      subject:
+        user_id: u-1
+        roles: ["editor"]
+        tenant: acme
+      action: read
+      resource:
+        tenant: other
+        owner_id: u-1
+        type: invoice
+    expected: false
+  billing_read:
+    input:
+      subject:
+        user_id: u-b
+        roles: ["billing.viewer"]
+        tenant: acme
+      action: read
+      resource:
+        tenant: acme
+        owner_id: u-x
+        type: invoice
+    expected: true
