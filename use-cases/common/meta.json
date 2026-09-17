@@ -1,0 +1,7 @@
+{
+  "id": "common",
+  "title": "公司通用決策接口規範 (Company Standard Decision Interface)",
+  "description": "提供統一的決策信封 (Decision Envelope) 與結果結構，包含 allowed, decision_code, reasons, timestamp 與 metadata。",
+  "tags": ["standard", "interface", "audit", "decision-log"],
+  "query": "data.common.decision.response"
+}

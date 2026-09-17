@@ -1,20 +1,34 @@
+
 package ci
 
 import rego.v1
 
 default pass := false
-default reason := "unknown"
+default decision_code := "DENY_DEFAULT"
+
+# Decision code resolution
+decision_code := "ALLOW_WAIVER" if {
+	waiver_active
+} else := "ALLOW_THRESHOLD_MET" if {
+	threshold_met
+} else := "DENY_WAIVER_EXPIRED" if {
+	waiver_expired_for(input.repo)
+} else := "DENY_COVERAGE_BELOW_THRESHOLD" if {
+	threshold := data.thresholds[input.language]
+	input.coverage_pct < threshold
+}
+
+# Reasons resolution
+reasons := [reason] if {
+	reason != "unknown"
+} else := []
 
 # Explicit waiver (temporary exemption)
 pass if {
-	some w in data.waivers
-	w.repo == input.repo
-	is_string(w.ticket)
-	w.ticket != ""
-	not waiver_expired(w)
+	waiver_active
 }
 
-reason := "waiver" if {
+waiver_active if {
 	some w in data.waivers
 	w.repo == input.repo
 	is_string(w.ticket)
@@ -24,18 +38,25 @@ reason := "waiver" if {
 
 # Coverage threshold by language profile
 pass if {
-	threshold := data.thresholds[input.language]
-	input.coverage_pct >= threshold
+	threshold_met
 	not waiver_expired_for(input.repo)
 }
 
-reason := sprintf("coverage %s%% >= threshold %s%%", [format_int(input.coverage_pct, 10), format_int(threshold, 10)]) if {
+threshold_met if {
 	threshold := data.thresholds[input.language]
 	input.coverage_pct >= threshold
 }
 
-reason := sprintf("coverage %s%% < threshold %s%%", [format_int(input.coverage_pct, 10), format_int(threshold, 10)]) if {
+default reason := "unknown"
+
+reason := "waiver active" if {
+	waiver_active
+} else := sprintf("waiver expired for repo %s", [input.repo]) if {
+	waiver_expired_for(input.repo)
+} else := sprintf("coverage %s%% >= threshold %s%%", [format_int(input.coverage_pct, 10), format_int(threshold, 10)]) if {
+	threshold := data.thresholds[input.language]
+	input.coverage_pct >= threshold
+} else := sprintf("coverage %s%% < threshold %s%%", [format_int(input.coverage_pct, 10), format_int(threshold, 10)]) if {
 	threshold := data.thresholds[input.language]
 	input.coverage_pct < threshold
-	not waiver_ok(input.repo)
 }
