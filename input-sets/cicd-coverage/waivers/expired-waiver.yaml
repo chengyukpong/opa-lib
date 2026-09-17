@@ -1,0 +1,3 @@
+repo: acme/spike-ml
+language: python
+coverage_pct: 10
