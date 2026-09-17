@@ -1,0 +1,3 @@
+repo: acme/web
+language: typescript
+coverage_pct: 85

@@ -15,7 +15,7 @@ test_ts_fail if {
 	not pass with input as {
 		"repo": "acme/web",
 		"language": "typescript",
-		"coverage_pct": 62,
+		"coverage_pct": 9
 	}
 }
 
