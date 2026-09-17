@@ -1,3 +1,5 @@
 repo: acme/api
 language: java
 coverage_pct: 76
+expected: true
+

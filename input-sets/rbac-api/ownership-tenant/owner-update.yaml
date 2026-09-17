@@ -1,0 +1,10 @@
+subject:
+  user_id: u-1
+  roles:
+    - viewer
+  tenant: acme
+action: update
+resource:
+  tenant: acme
+  owner_id: u-1
+  type: invoice

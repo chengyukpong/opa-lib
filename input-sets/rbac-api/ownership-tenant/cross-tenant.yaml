@@ -1,0 +1,10 @@
+subject:
+  user_id: u-1
+  roles:
+    - editor
+  tenant: acme
+action: read
+resource:
+  tenant: other
+  owner_id: u-1
+  type: invoice

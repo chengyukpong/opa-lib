@@ -1,0 +1,2 @@
+image: ghcr.io/someone/random:latest
+namespace: prod

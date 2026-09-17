@@ -1,3 +1,5 @@
 repo: acme/legacy-portal
 language: typescript
 coverage_pct: 40
+expected: true
+

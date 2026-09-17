@@ -1,0 +1,2 @@
+image: docker.io/library/nginx:1.25
+namespace: prod

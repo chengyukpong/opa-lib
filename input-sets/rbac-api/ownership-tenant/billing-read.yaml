@@ -1,0 +1,10 @@
+subject:
+  user_id: u-b
+  roles:
+    - billing.viewer
+  tenant: acme
+action: read
+resource:
+  tenant: acme
+  owner_id: u-x
+  type: invoice

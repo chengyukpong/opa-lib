@@ -1,0 +1,2 @@
+image: quay.io/acme-legacy/old-app:1.0
+namespace: legacy

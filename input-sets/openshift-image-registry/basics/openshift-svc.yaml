@@ -1,0 +1,2 @@
+image: image-registry.openshift-image-registry.svc:5000/app/tool:latest
+namespace: app

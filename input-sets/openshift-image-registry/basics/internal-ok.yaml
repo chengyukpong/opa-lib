@@ -1,0 +1,2 @@
+image: registry.internal.acme/orders:1.0.0
+namespace: prod

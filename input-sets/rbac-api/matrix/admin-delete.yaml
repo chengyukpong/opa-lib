@@ -1,0 +1,10 @@
+subject:
+  user_id: u-admin
+  roles:
+    - admin
+  tenant: acme
+action: delete
+resource:
+  tenant: acme
+  owner_id: u-other
+  type: invoice
