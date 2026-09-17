@@ -26,6 +26,8 @@ let totalFailed = 0;
 for (const uc of useCases) {
   const ucDir = path.join(useCasesDir, uc);
   const policiesDir = path.join(ucDir, 'policies');
+  const testDir = path.join(ucDir, 'test');
+  const testsDir = path.join(ucDir, 'tests');
   const dataDir = path.join(ucDir, 'data');
 
   const args = ['test'];
@@ -39,6 +41,11 @@ for (const uc of useCases) {
 
   if (fs.existsSync(policiesDir)) {
     args.push(path.relative(baseDir, policiesDir).replace(/\\/g, '/'));
+  }
+  if (fs.existsSync(testDir)) {
+    args.push(path.relative(baseDir, testDir).replace(/\\/g, '/'));
+  } else if (fs.existsSync(testsDir)) {
+    args.push(path.relative(baseDir, testsDir).replace(/\\/g, '/'));
   }
   if (fs.existsSync(dataDir)) {
     const dataFiles = fs.readdirSync(dataDir).filter(f => f.endsWith('.json') || f.endsWith('.yaml'));
