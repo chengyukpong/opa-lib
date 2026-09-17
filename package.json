@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
+    "test:opa": "node scripts/test-opa.mjs",
+    "test:all": "node scripts/test-opa.mjs && vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
