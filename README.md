@@ -1,5 +1,7 @@
 # OPA Policy Library (`opa-lib`)
 
+> **Note**: This repository serves as a reference demonstration showcasing enterprise best practices for Open Policy Agent (OPA). It demonstrates scalable architecture patterns including corporate decision envelope standardization, SPI contract testing, multi-bundle deployment, and strict namespace isolation.
+
 A standardized, zero-dependency Open Policy Agent (OPA) policy repository featuring enterprise use-cases, native Rego testing, and standardized decision interfaces.
 
 ---
