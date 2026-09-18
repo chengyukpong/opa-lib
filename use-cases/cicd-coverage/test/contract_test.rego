@@ -3,7 +3,7 @@ package ci_contract_test
 import rego.v1
 import data.common.contract
 
-# 驗證此 use-case 是否完全符合企業 SPI 契約 (package policy)
+# 驗證此 use-case 是否完全符合企業 SPI 契約 (package envelope)
 test_spi_contract_compliance if {
 	mock_input := {
 		"repo": "acme/web",

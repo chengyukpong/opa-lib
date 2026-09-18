@@ -6,10 +6,10 @@ A standardized, zero-dependency Open Policy Agent (OPA) policy repository featur
 
 ## Standard Decision Interface & SPI Contract
 
-All enterprise policy bundles must conform to the **Corporate SPI Contract (`package policy`)** which is automatically encapsulated by the unified **Decision Envelope (`data.common.decision.response`)**:
+All enterprise policy bundles must conform to the **Corporate Envelope SPI Contract (`package envelope`)** which is automatically encapsulated by the unified **Decision Envelope (`data.common.decision.response`)**:
 
-### 1. SPI Implementation Contract (`package policy`)
-Each policy bundle must declare `package policy` (typically in `policies/policy_adapter.rego` or `policies/main.rego`) exporting:
+### 1. SPI Implementation Contract (`package envelope`)
+Each policy bundle must declare `package envelope` (typically in `policies/envelope_adapter.rego`) exporting:
 - `allowed` (`boolean`): Whether the request passes.
 - `code` (`string`): Standard decision code (e.g. `ALLOW_THRESHOLD_MET`, `DENY_EXPIRED`).
 - `reasons` (`array` or `set`): Explanatory reasons.
@@ -56,6 +56,7 @@ Each policy bundle must declare `package policy` (typically in `policies/policy_
 │   ├── cicd-coverage/
 │   ├── openshift-image-registry/
 │   └── rbac-api/
+├── config.yaml                   # Global runtime config (defines default_decision)
 └── opa.exe                       # OPA runtime binary
 ```
 
@@ -91,36 +92,82 @@ Run native unit and fixture tests using `opa test`. Include `use-cases/common/po
 Evaluate standard `common/decision/response` envelopes or specific rules using `opa eval`.
 
 ### Standard Response Evaluation
-```bash
-# Evaluate CI/CD coverage standard response
-.\opa.exe eval --data use-cases/cicd-coverage --data use-cases/common/policies \
-  --input input-sets/cicd-coverage/thresholds/ts-pass.yaml \
-  "data.common.decision.response"
+```cmd
+:: Evaluate CI/CD coverage standard response
+opa.exe eval --data use-cases/cicd-coverage --data use-cases/common/policies --input input-sets/cicd-coverage/thresholds/ts-pass.yaml "data.common.decision.response"
 
-# Evaluate RBAC decision rule
-.\opa.exe eval --data use-cases/rbac-api \
-  --input '{"subject":{"user_id":"u-admin","roles":["admin"],"tenant":"acme"},"action":"delete","resource":{"tenant":"acme","owner_id":"u-other","type":"invoice"}}' \
-  "data.authz.allow"
+:: Evaluate RBAC decision rule
+opa.exe eval --data use-cases/rbac-api --input "{\"subject\":{\"user_id\":\"u-admin\",\"roles\":[\"admin\"],\"tenant\":\"acme\"},\"action\":\"delete\",\"resource\":{\"tenant\":\"acme\",\"owner_id\":\"u-other\",\"type\":\"invoice\"}}" "data.authz.allow"
 ```
 
 ---
 
 ## 3. Building & Executing Bundles (`opa build` & `opa exec`)
 
-Build a production bundle containing the use case and common interface library, then run `opa exec` against it.
+You can build and execute use cases either as **independent multi-bundles** (Production Model) or as a **single merged bundle**.
 
-### Build Bundle
-```bash
-# Build bundle combining usecase policy and shared common interface
-.\opa.exe build --ignore test -o bundle-cicd.tar.gz use-cases/cicd-coverage use-cases/common/policies
+### Multi-Bundle Model (Recommended for Practice Team Setup)
+Each bundle declares its non-overlapping `.manifest` roots (`roots: ["common", "schemas"]` vs `roots: ["ci", "envelope", "thresholds", "waivers"]`).
+
+```cmd
+:: 1. Build independent bundles
+opa.exe build --ignore meta.json -b use-cases/common -o common.tar.gz
+opa.exe build --ignore test -b use-cases/cicd-coverage -o cicd-coverage.tar.gz
+
+:: 2. Exec with multiple bundles (Single-line for Windows CMD)
+opa.exe exec -c config.yaml --bundle cicd-coverage.tar.gz --bundle common.tar.gz input-sets/cicd-coverage/thresholds/ts-pass.yaml
 ```
 
-### Exec with Configuration File (`config.yaml`)
-You can use `config.yaml` to specify the `default_decision` so you don't need to specify `--decision`:
+### Single Merged Bundle Model
+```cmd
+:: Build unified bundle
+opa.exe build --ignore test -o bundle-cicd.tar.gz use-cases/cicd-coverage use-cases/common/policies
 
-```bash
-# Exec using config.yaml without typing --decision
-.\opa.exe exec -c use-cases/cicd-coverage/config.yaml \
-  --bundle bundle-cicd.tar.gz \
-  input-sets/cicd-coverage/thresholds/ts-pass.yaml
+:: Exec unified bundle (Single-line for Windows CMD)
+opa.exe exec -c config.yaml --bundle bundle-cicd.tar.gz input-sets/cicd-coverage/thresholds/ts-pass.yaml
+```
+
+---
+
+## 4. Remote S3 Bundle Configuration (`config.s3.yaml`)
+
+In enterprise production environments, bundles are often hosted on AWS S3 (or S3-compatible object storage like MinIO). OPA can automatically poll and download bundles from S3 without specifying `--bundle` on the command line.
+
+### Example `config.s3.yaml`:
+```yaml
+default_decision: /common/decision/response
+
+services:
+  s3_bundle_repo:
+    url: https://s3.ap-east-1.amazonaws.com/corp-opa-bundles
+    credentials:
+      s3_signing:
+        # Uses AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, or IAM Role from environment
+        environment_credentials: {}
+
+bundles:
+  # Practice Team shared bundle
+  common:
+    service: s3_bundle_repo
+    resource: common/v1.0.0/common.tar.gz
+    polling:
+      min_delay_seconds: 60
+      max_delay_seconds: 120
+
+  # Application / Use-Case bundle
+  cicd_coverage:
+    service: s3_bundle_repo
+    resource: cicd-coverage/v1.2.0/cicd-coverage.tar.gz
+    polling:
+      min_delay_seconds: 60
+      max_delay_seconds: 120
+```
+
+### Running with S3 Bundles:
+```cmd
+:: OPA Server (auto-downloads and watches S3 bundles)
+opa.exe run --server -c config.s3.yaml
+
+:: One-shot Exec against S3 bundles
+opa.exe exec -c config.s3.yaml input-sets/cicd-coverage/thresholds/ts-pass.yaml
 ```

@@ -2,7 +2,7 @@ package common.decision
 
 import rego.v1
 
-# Standard Company Decision Envelope (Evaluated against data.policy)
+# Standard Company Decision Envelope (Evaluated against data.envelope)
 response := {
 	"allowed": allowed,
 	"decision_code": decision_code,
@@ -21,27 +21,27 @@ default metadata := {
 }
 
 # Resolve allowed state
-allowed := data.policy.allowed if {
-	is_boolean(data.policy.allowed)
+allowed := data.envelope.allowed if {
+	is_boolean(data.envelope.allowed)
 }
 
 # Resolve decision_code
-decision_code := data.policy.code if {
-	is_string(data.policy.code)
+decision_code := data.envelope.code if {
+	is_string(data.envelope.code)
 } else := "ALLOW_OK" if {
 	allowed
 } else := "DENY_DEFAULT"
 
 # Resolve reasons
-reasons := data.policy.reasons if {
-	is_array(data.policy.reasons)
-} else := [r | some r in data.policy.reasons] if {
-	is_set(data.policy.reasons)
+reasons := data.envelope.reasons if {
+	is_array(data.envelope.reasons)
+} else := [r | some r in data.envelope.reasons] if {
+	is_set(data.envelope.reasons)
 } else := []
 
 # Metadata resolution
-metadata := data.policy.metadata if {
-	is_object(data.policy.metadata)
+metadata := data.envelope.metadata if {
+	is_object(data.envelope.metadata)
 } else := {
 	"policy_id": "unknown-policy",
 	"version": "1.0.0",

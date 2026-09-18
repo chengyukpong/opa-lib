@@ -1,9 +1,9 @@
-package policy
+package envelope
 
 import rego.v1
 import data.ci
 
-# Implement the standard data.policy contract
+# Implement the standard data.envelope contract
 allowed := ci.pass
 code := ci.decision_code
 reasons := ci.reasons
