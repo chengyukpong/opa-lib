@@ -2,63 +2,50 @@ package cicd_coverage.test
 
 import rego.v1
 import data.cicd_coverage.pass
-import data.common.decision.response
-import data.common.schema
+import data.cicd_coverage.decision_code
+import data.envelope
 
 test_ts_pass if {
-	pass with input as {
+	mock_input := {
 		"repo": "acme/web",
 		"language": "typescript",
 		"coverage_pct": 85,
 	}
 
-	res := response with input as {
-		"repo": "acme/web",
-		"language": "typescript",
-		"coverage_pct": 85,
-	}
-	res.allowed == true
-	res.decision_code == "ALLOW_THRESHOLD_MET"
+	pass with input as mock_input
+	decision_code == "ALLOW_THRESHOLD_MET" with input as mock_input
 
-	# Validate against corporate response JSON schema
-	schema_check := schema.validate_response(res)
-	schema_check.valid == true
+	# Verify envelope adapter export
+	envelope.allowed == true with input as mock_input
+	envelope.code == "ALLOW_THRESHOLD_MET" with input as mock_input
 }
 
 test_ts_fail if {
-	not pass with input as {
+	mock_input := {
 		"repo": "acme/web",
 		"language": "typescript",
 		"coverage_pct": 9,
 	}
 
-	res := response with input as {
-		"repo": "acme/web",
-		"language": "typescript",
-		"coverage_pct": 9,
-	}
-	res.allowed == false
-	res.decision_code == "DENY_COVERAGE_BELOW_THRESHOLD"
+	not pass with input as mock_input
+	decision_code == "DENY_COVERAGE_BELOW_THRESHOLD" with input as mock_input
 
-	schema_check := schema.validate_response(res)
-	schema_check.valid == true
+	# Verify envelope adapter export
+	envelope.allowed == false with input as mock_input
+	envelope.code == "DENY_COVERAGE_BELOW_THRESHOLD" with input as mock_input
 }
 
 test_valid_waiver if {
-	pass with input as {
+	mock_input := {
 		"repo": "acme/legacy-portal",
 		"language": "typescript",
 		"coverage_pct": 40,
 	}
 
-	res := response with input as {
-		"repo": "acme/legacy-portal",
-		"language": "typescript",
-		"coverage_pct": 40,
-	}
-	res.allowed == true
-	res.decision_code == "ALLOW_WAIVER"
+	pass with input as mock_input
+	decision_code == "ALLOW_WAIVER" with input as mock_input
 
-	schema_check := schema.validate_response(res)
-	schema_check.valid == true
+	# Verify envelope adapter export
+	envelope.allowed == true with input as mock_input
+	envelope.code == "ALLOW_WAIVER" with input as mock_input
 }

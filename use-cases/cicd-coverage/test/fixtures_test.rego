@@ -2,28 +2,19 @@ package cicd_coverage.test
 
 import rego.v1
 import data.cicd_coverage.pass
-import data.common.decision.response
-import data.common.schema
+import data.envelope
 
 test_all_threshold_fixtures if {
-	every _, c in data.test.threshold_cases {
+	every _, c in data.cicd_coverage.test_fixtures.threshold_cases {
 		pass == c.expected with input as c.input
-		res := response with input as c.input
-		res.allowed == c.expected
-
-		schema_check := schema.validate_response(res)
-		schema_check.valid == true
+		envelope.allowed == c.expected with input as c.input
 	}
 }
 
 test_all_waiver_fixtures if {
-	every _, c in data.test.waiver_cases {
+	every _, c in data.cicd_coverage.test_fixtures.waiver_cases {
 		pass == c.expected with input as c.input
-		res := response with input as c.input
-		res.allowed == c.expected
-
-		schema_check := schema.validate_response(res)
-		schema_check.valid == true
+		envelope.allowed == c.expected with input as c.input
 	}
 }
 

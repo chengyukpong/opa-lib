@@ -2,56 +2,47 @@ package openshift.test
 
 import rego.v1
 import data.openshift.allowed
-import data.common.decision.response
-import data.common.schema
+import data.openshift.decision_code
+import data.envelope
 
 test_internal_image_allowed if {
-	allowed with input as {
+	mock_input := {
 		"image": "registry.internal.acme/orders:1.0.0",
 		"namespace": "prod",
 	}
 
-	res := response with input as {
-		"image": "registry.internal.acme/orders:1.0.0",
-		"namespace": "prod",
-	}
-	res.allowed == true
-	res.decision_code == "ALLOW_REGISTRY_INTERNAL"
+	allowed with input as mock_input
+	decision_code == "ALLOW_REGISTRY_INTERNAL" with input as mock_input
 
-	schema_check := schema.validate_response(res)
-	schema_check.valid == true
+	# Verify envelope export
+	envelope.allowed == true with input as mock_input
+	envelope.code == "ALLOW_REGISTRY_INTERNAL" with input as mock_input
 }
 
 test_external_image_denied if {
-	not allowed with input as {
+	mock_input := {
 		"image": "docker.io/library/nginx:1.25",
 		"namespace": "prod",
 	}
 
-	res := response with input as {
-		"image": "docker.io/library/nginx:1.25",
-		"namespace": "prod",
-	}
-	res.allowed == false
-	res.decision_code == "DENY_EXCEPTION_NO_TICKET"
+	not allowed with input as mock_input
+	decision_code == "DENY_EXCEPTION_NO_TICKET" with input as mock_input
 
-	schema_check := schema.validate_response(res)
-	schema_check.valid == true
+	# Verify envelope export
+	envelope.allowed == false with input as mock_input
+	envelope.code == "DENY_EXCEPTION_NO_TICKET" with input as mock_input
 }
 
 test_exception_with_ticket_allowed if {
-	allowed with input as {
+	mock_input := {
 		"image": "quay.io/acme-legacy/old-app:1.0",
 		"namespace": "legacy",
 	}
 
-	res := response with input as {
-		"image": "quay.io/acme-legacy/old-app:1.0",
-		"namespace": "legacy",
-	}
-	res.allowed == true
-	res.decision_code == "ALLOW_REGISTRY_EXCEPTION"
+	allowed with input as mock_input
+	decision_code == "ALLOW_REGISTRY_EXCEPTION" with input as mock_input
 
-	schema_check := schema.validate_response(res)
-	schema_check.valid == true
+	# Verify envelope export
+	envelope.allowed == true with input as mock_input
+	envelope.code == "ALLOW_REGISTRY_EXCEPTION" with input as mock_input
 }

@@ -53,13 +53,13 @@ Each policy bundle must declare `package envelope` (typically in `policies/envel
 │   │   ├── .manifest                 # roots: ["cicd_coverage", "envelope"]
 │   │   ├── cicd_coverage/            # Mounted at data.cicd_coverage.*
 │   │   │   ├── data.json
-│   │   │   └── meta.json
+│   │   │   ├── meta.json
+│   │   │   └── test_fixtures/
 │   │   ├── policies/
 │   │   │   ├── coverage.rego         # Package cicd_coverage
 │   │   │   ├── waiver.rego           # Package cicd_coverage
 │   │   │   └── envelope_adapter.rego # Package envelope (implements SPI)
 │   │   └── test/                     # Excluded during bundle packaging
-│   │       ├── fixtures.yaml
 │   │       ├── fixtures_test.rego
 │   │       ├── coverage_test.rego
 │   │       └── contract_test.rego
@@ -67,12 +67,12 @@ Each policy bundle must declare `package envelope` (typically in `policies/envel
 │   │   ├── .manifest                 # roots: ["openshift", "envelope"]
 │   │   ├── openshift/                # Mounted at data.openshift.*
 │   │   │   ├── data.json
-│   │   │   └── meta.json
+│   │   │   ├── meta.json
+│   │   │   └── test_fixtures/
 │   │   ├── policies/
 │   │   │   ├── policy.rego           # Package openshift
 │   │   │   └── envelope_adapter.rego # Package envelope (implements SPI)
 │   │   └── test/
-│   │       ├── fixtures.yaml
 │   │       ├── fixtures_test.rego
 │   │       ├── image_policy_test.rego
 │   │       └── contract_test.rego
@@ -80,12 +80,12 @@ Each policy bundle must declare `package envelope` (typically in `policies/envel
 │       ├── .manifest                 # roots: ["authz", "envelope"]
 │       ├── authz/                    # Mounted at data.authz.*
 │       │   ├── data.json
-│       │   └── meta.json
+│       │   ├── meta.json
+│       │   └── test_fixtures/
 │       ├── policies/
 │       │   ├── policy.rego           # Package authz
 │       │   └── envelope_adapter.rego # Package envelope (implements SPI)
 │       └── test/
-│           ├── fixtures.yaml
 │           ├── fixtures_test.rego
 │           ├── authz_test.rego
 │           └── contract_test.rego
@@ -112,25 +112,26 @@ To support multi-team independent maintenance and bundle publishing (Multi-Bundl
 
 ## 1. Running Tests (`opa test`)
 
-Run native unit and fixture tests using `opa test`.
+Run native unit and fixture tests using `opa test`. Thanks to decoupled SPI envelope structure tests, each use case can now be tested in **complete isolation** without needing external dependencies.
 
-### Test a Single Use Case
+### Test a Single Use Case (Standalone)
 ```bash
-# Test specific use case with verbose output
-.\opa.exe test -v use-cases/cicd-coverage use-cases/common
+# Test specific use case directly
+.\opa.exe test -v use-cases/cicd-coverage
 
 # With coverage report
-.\opa.exe test -v --coverage use-cases/cicd-coverage use-cases/common
+.\opa.exe test -v --coverage use-cases/cicd-coverage
 
 # Run benchmarks
-.\opa.exe test --bench use-cases/openshift use-cases/common
+.\opa.exe test --bench use-cases/openshift
 ```
 
-### Test All Policy Suites
+### Test All Policy Suites Independently
 ```bash
-.\opa.exe test -v use-cases/cicd-coverage use-cases/common
-.\opa.exe test -v use-cases/openshift use-cases/common
-.\opa.exe test -v use-cases/authz use-cases/common
+.\opa.exe test -v use-cases/cicd-coverage
+.\opa.exe test -v use-cases/openshift
+.\opa.exe test -v use-cases/authz
+.\opa.exe test -v use-cases/common
 ```
 
 ---
