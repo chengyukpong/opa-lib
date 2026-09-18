@@ -42,53 +42,53 @@ Each policy bundle must declare `package envelope` (typically in `policies/envel
 │   ├── common/                       # Shared interfaces and envelope definitions
 │   │   ├── .manifest                 # roots: ["common"]
 │   │   ├── common/
+│   │   │   ├── meta.json             # Mounted at data.common.meta
 │   │   │   └── schemas/              # Mounted at data.common.schemas
 │   │   │       └── response.json
-│   │   ├── policies/                 # Package common.*
-│   │   │   ├── contract.rego
-│   │   │   ├── decision.rego
-│   │   │   └── schema.rego
-│   │   └── meta.json
+│   │   └── policies/                 # Package common.*
+│   │       ├── contract.rego
+│   │       ├── decision.rego
+│   │       └── schema.rego
 │   ├── cicd-coverage/
 │   │   ├── .manifest                 # roots: ["cicd_coverage", "envelope"]
 │   │   ├── cicd_coverage/            # Mounted at data.cicd_coverage.*
-│   │   │   └── data.json
+│   │   │   ├── data.json
+│   │   │   └── meta.json
 │   │   ├── policies/
 │   │   │   ├── coverage.rego         # Package cicd_coverage
 │   │   │   ├── waiver.rego           # Package cicd_coverage
 │   │   │   └── envelope_adapter.rego # Package envelope (implements SPI)
-│   │   ├── test/                     # Excluded during bundle packaging
-│   │   │   ├── fixtures.yaml
-│   │   │   ├── fixtures_test.rego
-│   │   │   ├── coverage_test.rego
-│   │   │   └── contract_test.rego
-│   │   └── meta.json
+│   │   └── test/                     # Excluded during bundle packaging
+│   │       ├── fixtures.yaml
+│   │       ├── fixtures_test.rego
+│   │       ├── coverage_test.rego
+│   │       └── contract_test.rego
 │   ├── openshift/
 │   │   ├── .manifest                 # roots: ["openshift", "envelope"]
 │   │   ├── openshift/                # Mounted at data.openshift.*
-│   │   │   └── data.json
+│   │   │   ├── data.json
+│   │   │   └── meta.json
 │   │   ├── policies/
 │   │   │   ├── policy.rego           # Package openshift
 │   │   │   └── envelope_adapter.rego # Package envelope (implements SPI)
-│   │   ├── test/
-│   │   │   ├── fixtures.yaml
-│   │   │   ├── fixtures_test.rego
-│   │   │   ├── image_policy_test.rego
-│   │   │   └── contract_test.rego
-│   │   └── meta.json
+│   │   └── test/
+│   │       ├── fixtures.yaml
+│   │       ├── fixtures_test.rego
+│   │       ├── image_policy_test.rego
+│   │       └── contract_test.rego
 │   └── authz/
 │       ├── .manifest                 # roots: ["authz", "envelope"]
 │       ├── authz/                    # Mounted at data.authz.*
-│       │   └── data.json
+│       │   ├── data.json
+│       │   └── meta.json
 │       ├── policies/
 │       │   ├── policy.rego           # Package authz
 │       │   └── envelope_adapter.rego # Package envelope (implements SPI)
-│       ├── test/
-│       │   ├── fixtures.yaml
-│       │   ├── fixtures_test.rego
-│       │   ├── authz_test.rego
-│       │   └── contract_test.rego
-│       └── meta.json
+│       └── test/
+│           ├── fixtures.yaml
+│           ├── fixtures_test.rego
+│           ├── authz_test.rego
+│           └── contract_test.rego
 ├── input-sets/                       # Standalone input payloads for opa exec testing
 │   ├── cicd-coverage/
 │   ├── openshift/
@@ -100,8 +100,8 @@ Each policy bundle must declare `package envelope` (typically in `policies/envel
 ### Namespace Isolation & Manifest Root Convergence
 To support multi-team independent maintenance and bundle publishing (Multi-Bundle Architecture), this repository follows the **Namespace Convergence and Isolation Principle**:
 1. **Path-as-Namespace**:
-   - Static data and JSON schemas are placed in domain-matching subdirectories (e.g. `common/schemas/response.json` mounts under `data.common.schemas`, `cicd_coverage/data.json` mounts under `data.cicd_coverage.*`).
-   - Avoid placing `data.json` directly at the bundle root directory to prevent merge conflicts (`Merge Error`) when multiple bundles are loaded into `data.*` simultaneously.
+   - Static data, metadata, and JSON schemas are placed in domain-matching subdirectories (e.g. `common/common/meta.json` mounts under `data.common.meta`, `common/schemas/response.json` mounts under `data.common.schemas`, `cicd_coverage/data.json` mounts under `data.cicd_coverage.*`).
+   - Avoid placing non-namespaced JSON files directly at the use-case root directory to prevent merge conflicts (`Merge Error`) when multiple bundles are loaded into `data.*` simultaneously.
 2. **Minimal Manifest Roots**:
    - Through directory convergence, the `common` bundle only needs to declare a single root: `["common"]`.
    - Each business usecase bundle only declares its business namespace and the SPI adapter namespace (e.g. `["cicd_coverage", "envelope"]`).
@@ -112,25 +112,25 @@ To support multi-team independent maintenance and bundle publishing (Multi-Bundl
 
 ## 1. Running Tests (`opa test`)
 
-Run native unit and fixture tests using `opa test`. Include `use-cases/common/policies` for packages that implement standard decision interfaces.
+Run native unit and fixture tests using `opa test`.
 
 ### Test a Single Use Case
 ```bash
 # Test specific use case with verbose output
-.\opa.exe test -v --ignore meta.json use-cases/cicd-coverage use-cases/common
+.\opa.exe test -v use-cases/cicd-coverage use-cases/common
 
 # With coverage report
-.\opa.exe test -v --ignore meta.json --coverage use-cases/cicd-coverage use-cases/common
+.\opa.exe test -v --coverage use-cases/cicd-coverage use-cases/common
 
 # Run benchmarks
-.\opa.exe test --bench --ignore meta.json use-cases/openshift use-cases/common
+.\opa.exe test --bench use-cases/openshift use-cases/common
 ```
 
 ### Test All Policy Suites
 ```bash
-.\opa.exe test -v --ignore meta.json use-cases/cicd-coverage use-cases/common
-.\opa.exe test -v --ignore meta.json use-cases/openshift use-cases/common
-.\opa.exe test -v --ignore meta.json use-cases/authz use-cases/common
+.\opa.exe test -v use-cases/cicd-coverage use-cases/common
+.\opa.exe test -v use-cases/openshift use-cases/common
+.\opa.exe test -v use-cases/authz use-cases/common
 ```
 
 ---
@@ -142,13 +142,13 @@ Evaluate standard `common/decision/response` envelopes or specific rules using `
 ### Standard Response Evaluation
 ```cmd
 :: Evaluate CI/CD coverage standard response
-opa.exe eval --ignore meta.json --data use-cases/cicd-coverage --data use-cases/common --input input-sets/cicd-coverage/thresholds/ts-pass.yaml "data.common.decision.response"
+opa.exe eval --data use-cases/cicd-coverage --data use-cases/common --input input-sets/cicd-coverage/thresholds/ts-pass.yaml "data.common.decision.response"
 
 :: Evaluate OpenShift registry standard response
-opa.exe eval --ignore meta.json --data use-cases/openshift --data use-cases/common --input input-sets/openshift/basics/internal-ok.yaml "data.common.decision.response"
+opa.exe eval --data use-cases/openshift --data use-cases/common --input input-sets/openshift/basics/internal-ok.yaml "data.common.decision.response"
 
 :: Evaluate Authz API standard response
-opa.exe eval --ignore meta.json --data use-cases/authz --data use-cases/common --input input-sets/authz/matrix/admin-delete.yaml "data.common.decision.response"
+opa.exe eval --data use-cases/authz --data use-cases/common --input input-sets/authz/matrix/admin-delete.yaml "data.common.decision.response"
 ```
 
 ---
@@ -162,7 +162,12 @@ Each bundle declares its non-overlapping `.manifest` roots (`roots: ["common"]` 
 
 ```cmd
 :: 1. Build independent bundles
-opa.exe build --ignore meta.json -b use-cases/common -o common.tar.gz
+opa.exe build -b use-cases/common -o common.tar.gz
+opa.exe build --ignore test -b use-cases/cicd-coverage -o cicd-coverage.tar.gz
+
+:: 2. Exec with multiple bundles (Single-line for Windows CMD)
+opa.exe exec -c config.yaml --bundle cicd-coverage.tar.gz --bundle common.tar.gz input-sets/cicd-coverage/thresholds/ts-pass.yaml
+```
 opa.exe build --ignore test -b use-cases/cicd-coverage -o cicd-coverage.tar.gz
 
 :: 2. Exec with multiple bundles (Single-line for Windows CMD)
