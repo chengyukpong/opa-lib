@@ -1,20 +1,21 @@
 # ==============================================================================
-# 🏢 Corporate Policy Envelope SPI Contract (企業決策 Envelope SPI 契約規範)
+# 🏢 Corporate Policy Envelope SPI Contract Specification
 #
-# 任何接入企業決策系統的 Policy Bundle，必須在 `policies/` 下實作 `package envelope`
-# 並強制導出以下規範欄位供 `data.common.decision.response` 統一封裝：
+# Any policy bundle integrated into the corporate decision system must implement
+# `package envelope` under `policies/` and export the following standardized fields
+# for unified encapsulation by `data.common.decision.response`:
 #
-#   1. allowed  (boolean): 決策是否允許/通過
-#   2. code     (string):  標準決策代碼 (例如 ALLOW_THRESHOLD_MET, DENY_EXPIRED)
-#   3. reasons  (array):   判定理由列表 (字串陣列)
-#   4. metadata (object):  必須包含 policy_id 與 version
+#   1. allowed  (boolean): Whether the decision passed/allowed
+#   2. code     (string):  Standard decision code (e.g., ALLOW_THRESHOLD_MET, DENY_EXPIRED)
+#   3. reasons  (array):   List of explanatory reason strings
+#   4. metadata (object):  Must contain policy_id and version
 #
 # ==============================================================================
 package common.contract
 
 import rego.v1
 
-# 檢查 policy bundle 是否符合企業 Envelope SPI 契約介面
+# Verify whether a policy bundle satisfies the corporate Envelope SPI contract interface
 compliance_errors contains "Missing required field: data.envelope.allowed (must be boolean)" if {
 	not is_boolean(data.envelope.allowed)
 }
@@ -47,7 +48,7 @@ compliance_errors contains "Missing required field: data.envelope.metadata.versi
 	not is_string(data.envelope.metadata.version)
 }
 
-# 契約合規性判定
+# Contract compliance determination
 is_compliant if {
 	count(compliance_errors) == 0
 }

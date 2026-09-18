@@ -1,7 +1,7 @@
-package ci_test
+package cicd_coverage.test
 
 import rego.v1
-import data.ci.pass
+import data.cicd_coverage.pass
 import data.common.decision.response
 import data.common.schema
 

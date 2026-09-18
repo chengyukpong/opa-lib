@@ -1,0 +1,7 @@
+{
+  "id": "openshift",
+  "title": "OpenShift: Container Image Registry Enforcement",
+  "description": "All deployment images must originate from approved internal registries; exceptions require valid, non-expired waiver tickets.",
+  "tags": ["openshift", "admission", "compliance"],
+  "query": "data.common.decision.response"
+}

@@ -1,7 +1,0 @@
-{
-  "id": "openshift-image-registry",
-  "title": "OpenShift：鏡像必須來自內部 Registry",
-  "description": "所有部署鏡像必須以允許的內部 registry 前綴開頭；例外需綁定 ticket 且未過期。",
-  "tags": ["openshift", "admission", "compliance"],
-  "query": "data.image_policy.allowed"
-}

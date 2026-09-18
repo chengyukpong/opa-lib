@@ -1,9 +1,9 @@
-package ci
+package cicd_coverage
 
 import rego.v1
 
 waiver_ok(repo) if {
-	some w in data.waivers
+	some w in data.cicd_coverage.waivers
 	w.repo == repo
 	is_string(w.ticket)
 	w.ticket != ""
@@ -16,7 +16,7 @@ waiver_expired(w) if {
 }
 
 waiver_expired_for(repo) if {
-	some w in data.waivers
+	some w in data.cicd_coverage.waivers
 	w.repo == repo
 	waiver_expired(w)
 }

@@ -1,13 +1,13 @@
-package cicd_coverage.test
+package openshift.test
 
 import rego.v1
-import data.cicd_coverage.pass
+import data.openshift.allowed
 import data.common.decision.response
 import data.common.schema
 
-test_all_threshold_fixtures if {
-	every _, c in data.test.threshold_cases {
-		pass == c.expected with input as c.input
+test_all_basics_fixtures if {
+	every _, c in data.test.basics_cases {
+		allowed == c.expected with input as c.input
 		res := response with input as c.input
 		res.allowed == c.expected
 
@@ -16,9 +16,9 @@ test_all_threshold_fixtures if {
 	}
 }
 
-test_all_waiver_fixtures if {
-	every _, c in data.test.waiver_cases {
-		pass == c.expected with input as c.input
+test_all_exceptions_fixtures if {
+	every _, c in data.test.exceptions_cases {
+		allowed == c.expected with input as c.input
 		res := response with input as c.input
 		res.allowed == c.expected
 
@@ -26,4 +26,3 @@ test_all_waiver_fixtures if {
 		schema_check.valid == true
 	}
 }
-

@@ -1,5 +1,5 @@
 
-package ci
+package cicd_coverage
 
 import rego.v1
 
@@ -14,7 +14,7 @@ decision_code := "ALLOW_WAIVER" if {
 } else := "DENY_WAIVER_EXPIRED" if {
 	waiver_expired_for(input.repo)
 } else := "DENY_COVERAGE_BELOW_THRESHOLD" if {
-	threshold := data.thresholds[input.language]
+	threshold := data.cicd_coverage.thresholds[input.language]
 	input.coverage_pct < threshold
 }
 
@@ -29,7 +29,7 @@ pass if {
 }
 
 waiver_active if {
-	some w in data.waivers
+	some w in data.cicd_coverage.waivers
 	w.repo == input.repo
 	is_string(w.ticket)
 	w.ticket != ""
@@ -43,7 +43,7 @@ pass if {
 }
 
 threshold_met if {
-	threshold := data.thresholds[input.language]
+	threshold := data.cicd_coverage.thresholds[input.language]
 	input.coverage_pct >= threshold
 }
 
@@ -54,9 +54,9 @@ reason := "waiver active" if {
 } else := sprintf("waiver expired for repo %s", [input.repo]) if {
 	waiver_expired_for(input.repo)
 } else := sprintf("coverage %s%% >= threshold %s%%", [format_int(input.coverage_pct, 10), format_int(threshold, 10)]) if {
-	threshold := data.thresholds[input.language]
+	threshold := data.cicd_coverage.thresholds[input.language]
 	input.coverage_pct >= threshold
 } else := sprintf("coverage %s%% < threshold %s%%", [format_int(input.coverage_pct, 10), format_int(threshold, 10)]) if {
-	threshold := data.thresholds[input.language]
+	threshold := data.cicd_coverage.thresholds[input.language]
 	input.coverage_pct < threshold
 }

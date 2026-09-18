@@ -1,0 +1,7 @@
+{
+  "id": "authz",
+  "title": "Microservice API RBAC & Authorization",
+  "description": "Authorizes API read and write operations based on user roles, tenant isolation, and resource ownership; administrators have full access.",
+  "tags": ["rbac", "authz", "api", "microservice"],
+  "query": "data.common.decision.response"
+}
